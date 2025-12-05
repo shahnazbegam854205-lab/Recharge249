@@ -1,17 +1,10 @@
 {
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs24.x"
-    }
+  "name": "249free",
+  "version": "1.0.0",
+  "engines": {
+    "node": "24.x"
   },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "dest": "/public/$1"
-    }
-  ]
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
 }
