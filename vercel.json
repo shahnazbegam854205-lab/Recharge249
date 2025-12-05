@@ -1,10 +1,4 @@
 {
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs24.x",
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -12,7 +6,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/public/$1"
+      "dest": "/public/$1"
     }
   ]
 }
