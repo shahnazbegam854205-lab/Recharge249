@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/telegram.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -8,6 +14,14 @@
     {
       "source": "/(.*)",
       "destination": "/public/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
     }
   ]
 }
